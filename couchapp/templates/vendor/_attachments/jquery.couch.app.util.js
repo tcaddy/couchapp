@@ -59,9 +59,27 @@ $.fn.prettyDate = function() {
 };
 
 $.prettyDate = function(time){
-  
-	var date = new Date(time.replace(/-/g,"/").replace("T", " ").replace("Z", " +0000").replace(/(\d*\:\d*:\d*)\.\d*/g,"$1")),
-		diff = (((new Date()).getTime() - date.getTime()) / 1000),
+  /*
+    Changes from fork by tcaddy:
+      This function should accept more than one kind of valid date format.
+      Let's try to create the date from the time variable, as is.
+      We will degrade to the old way of doing things if we don't have a valid
+      date object.
+      
+      The function used to test if an object is a date is a copy from sourcecode
+      of the isDate() function from underscore.js 
+      (http://documentcloud.github.com/underscore/#isDate).
+  */
+  var date;
+  try {
+    date = new Date(time);
+  } catch(e) {
+    date=null;
+  }
+  if (!(!!(date && date.getTimezoneOffset && date.setUTCFullYear))) { 
+	  date = new Date(time.replace(/-/g,"/").replace("T", " ").replace("Z", " +0000").replace(/(\d*\:\d*:\d*)\.\d*/g,"$1")) ;
+	}
+	var diff = (((new Date()).getTime() - date.getTime()) / 1000),
 		day_diff = Math.floor(diff / 86400);
 
   if (isNaN(day_diff)) return time;
